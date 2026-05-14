@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 from openai import OpenAI
 
-load_dotenv(r'/noticias_resumidas_api/.env')
+load_dotenv(r'C:\Users\mayhi\PycharmProjects\noticias_resumidas_api\.env')
 
 API_KEY = os.getenv('API_KEY')
 news_key = os.getenv('news_api_key')
@@ -16,13 +16,15 @@ cliente = OpenAI(
 )
 
 for news in resposta.json()['articles']:
+    if news['description'] is None:
+        continue
     print(news['title'])
     print(news['description'])
     resultado = cliente.chat.completions.create(
         model='llama-3.1-8b-instant',
         messages=[
-            {'role': 'user', 'content': f'Resuma em português: {news["title"]} - {news["description"]}'}
+            {'role': 'system', 'content': 'Você é um assistente que resume notícias. Responda SEMPRE em português do Brasil, sem exceções.'},
+            {'role': 'user', 'content': f'Resuma em 2 linhas: {news["title"]} - {news["description"]}'}
         ]
     )
-
     print(resultado.choices[0].message.content)
